@@ -226,7 +226,64 @@
         document.getElementById('loading').classList.add('hidden');
     };
 
-    function checkTimeAndRender() {
+    // Hàm chuyển đổi ngày tháng chuẩn xác cho cả 2 định dạng
+function parseDateCustom(dateInput) {
+    // Thử parse theo chuẩn mặc định (ISO từ Google Sheets Date format)
+    let d = new Date(dateInput);
+    if (!isNaN(d.getTime())) return d;
+
+    // Nếu parse lỗi, xử lý theo định dạng nhập tay Text: DD/MM/YYYY HH:mm:ss
+    if (typeof dateInput === 'string') {
+        const parts = dateInput.split(' ');
+        const dateParts = parts[0].split('/'); // Cắt theo dấu /
+        if (dateParts.length === 3) {
+            const day = parseInt(dateParts[0], 10);
+            const month = parseInt(dateParts[1], 10) - 1; // JavaScript tính tháng từ 0 (0-11)
+            const year = parseInt(dateParts[2], 10);
+            
+            let hours = 0, minutes = 0, seconds = 0;
+            if (parts[1]) {
+                const timeParts = parts[1].split(':');
+                hours = parseInt(timeParts[0] || 0, 10);
+                minutes = parseInt(timeParts[1] || 0, 10);
+                seconds = parseInt(timeParts[2] || 0, 10);
+            }
+            return new Date(year, month, day, hours, minutes, seconds);
+        }
+    }
+    return new Date(); // Fallback nếu dữ liệu rỗng
+}
+
+function checkTimeAndRender() {
+    const now = new Date();
+    
+    // Sử dụng hàm parseDateCustom mới
+    const start = parseDateCustom(eventData.dangKyTu);
+    const end = parseDateCustom(eventData.dangKyDen);
+
+    // Kiểm tra thời gian
+    if (now < start || now > end) {
+        showClosedScreen();
+        return;
+    }
+
+    // Render Data (Phần này giữ nguyên như cũ)
+    document.getElementById('eventName').innerText = eventData.tenSuKien;
+    document.getElementById('eventDate').innerText = parseDateCustom(eventData.ngayToChuc).toLocaleDateString('vi-VN');
+    document.getElementById('eventLocation').innerText = eventData.diaDiemToChuc;
+    document.getElementById('regStart').innerText = start.toLocaleString('vi-VN');
+    document.getElementById('regEnd').innerText = end.toLocaleString('vi-VN');
+    
+    // Fee
+    document.getElementById('eventFee').innerText = formatCurrency(eventData.phiThamGia);
+    
+    const includes = eventData.phiBaoGom.split(';').filter(i=>i.trim()!=='').map(i => `<li><i class="fas fa-check text-green-500 mr-2"></i>${i.trim()}</li>`).join('');
+    const excludes = eventData.phiKhongBaoGom.split(';').filter(i=>i.trim()!=='').map(i => `<li><i class="fas fa-times text-red-500 mr-2"></i>${i.trim()}</li>`).join('');
+    document.getElementById('feeIncludes').innerHTML = includes;
+    document.getElementById('feeExcludes').innerHTML = excludes;
+
+    document.getElementById('mainContent').classList.remove('hidden');
+}
         const now = new Date();
         const start = new Date(eventData.dangKyTu);
         const end = new Date(eventData.dangKyDen);

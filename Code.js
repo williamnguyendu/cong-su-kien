@@ -1,5 +1,5 @@
 const SPREADSHEET_ID = '1xlGdKp9WZY2J6WcUvkfYrx1GTJHvrdrLvzeFmQPY86o';
-const SHEET_EVENT_NAME = 'ThongTinSuKien'; // Đổi tên sheet này trên file của bạn cho khớp
+const SHEET_EVENT_NAME = 'DangKySuKien'; // Đổi tên sheet này trên file của bạn cho khớp
 const SHEET_DATA_NAME = 'DSDKSuKien';
 
 // Xử lý request GET từ Front-end để lấy thông tin sự kiện
