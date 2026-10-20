@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký tham gia Sự kiện Pride</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .loader { border-top-color: #3498db; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-90">
+        <div class="flex flex-col items-center">
+            <div class="loader ease-linear rounded-full border-8 border-gray-200 h-16 w-16 mb-4"></div>
+            <h2 class="text-center text-xl font-semibold text-gray-700">Đang tải thông tin sự kiện...</h2>
+        </div>
+    </div>
+
+    <!-- Màn hình Sự kiện đóng -->
+    <div id="closedScreen" class="hidden min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full border-t-4 border-yellow-500">
+            <i class="fas fa-lock text-5xl text-yellow-500 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Cổng đăng ký chưa mở</h2>
+            <p class="text-gray-600 mb-6">Thời gian đăng ký sự kiện chưa bắt đầu hoặc đã kết thúc. Vui lòng liên hệ hỗ trợ nếu cần thiết.</p>
+            <a href="tel:0987500533" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                <i class="fas fa-phone-alt mr-2"></i> Liên hệ 0987.500.533
+            </a>
+        </div>
+    </div>
+
+    <!-- Nội dung chính -->
+    <div id="mainContent" class="hidden max-w-3xl mx-auto pb-12 pt-6 px-4 sm:px-6">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 id="eventName" class="text-3xl sm:text-4xl font-extrabold text-blue-800 mb-2 uppercase tracking-wide"></h1>
+            <p class="text-gray-500 italic">Pride Event Registration Form</p>
+        </div>
+
+        <!-- Info Boxes -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500">
+                <div class="flex items-center mb-3">
+                    <i class="fas fa-calendar-alt text-blue-500 text-xl w-8"></i>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-semibold">Thời gian tổ chức</p>
+                        <p id="eventDate" class="font-bold text-gray-800"></p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-map-marker-alt text-red-500 text-xl w-8"></i>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-semibold">Địa điểm</p>
+                        <p id="eventLocation" class="font-bold text-gray-800"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-green-500">
+                <div class="flex items-center h-full">
+                    <i class="fas fa-clock text-green-500 text-3xl w-12"></i>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-semibold">Thời hạn đăng ký</p>
+                        <p class="font-bold text-gray-800">Từ: <span id="regStart" class="text-blue-600"></span></p>
+                        <p class="font-bold text-gray-800">Đến: <span id="regEnd" class="text-red-600"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lưu ý của BTC -->
+        <div class="bg-blue-50 rounded-xl shadow p-5 mb-6 border border-blue-100">
+            <h3 class="font-bold text-blue-800 border-b border-blue-200 pb-2 mb-3"><i class="fas fa-exclamation-circle mr-2"></i>Lưu ý từ Ban Tổ Chức</h3>
+            <ul class="text-sm text-blue-900 space-y-2 list-disc list-inside">
+                <li>Ban tổ chức chỉ duyệt đăng ký khi bạn là thành viên của Cộng đồng Pride Home. Nếu chưa là thành viên vui lòng liên hệ 0987.500.533 (Zalo).</li>
+                <li>Đồng ý cho Pride Home sử dụng hình ảnh cho mục đích truyền thông.</li>
+                <li>Tuân thủ các quy định của Ban tổ chức trong quá trình tổ chức sự kiện.</li>
+            </ul>
+        </div>
+
+        <!-- Form đăng ký -->
+        <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8">
+            
+            <!-- BƯỚC 1 -->
+            <div id="step1">
+                <div class="flex items-center mb-6">
+                    <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">1</div>
+                    <h2 class="text-xl font-bold text-gray-800">Thông tin cá nhân & Phí tham gia</h2>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+                    <p class="text-center text-sm text-gray-500 mb-1">Phí tham gia</p>
+                    <p id="eventFee" class="text-center text-3xl font-bold text-green-600 mb-4"></p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="font-semibold text-gray-700 border-b pb-1 mb-2">Bao gồm:</p>
+                            <ul id="feeIncludes" class="space-y-1 text-gray-600"></ul>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-700 border-b pb-1 mb-2">Không bao gồm:</p>
+                            <ul id="feeExcludes" class="space-y-1 text-gray-600"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Họ và Tên *</label>
+                        <input type="text" id="inputName" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập họ tên của bạn">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Số điện thoại (Zalo) *</label>
+                        <input type="tel" id="inputPhone" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0987...">
+                    </div>
+                    <button onclick="nextStep()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 mt-4 shadow-md">
+                        Tiếp tục thanh toán <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- BƯỚC 2 -->
+            <div id="step2" class="hidden">
+                <div class="flex items-center mb-6">
+                    <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">2</div>
+                    <h2 class="text-xl font-bold text-gray-800">Thanh toán chuyển khoản</h2>
+                </div>
+                
+                <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6 text-sm text-yellow-800">
+                    <i class="fas fa-info-circle mr-1"></i> Quét mã QR bằng App Ngân hàng hoặc chuyển khoản thủ công theo thông tin bên dưới.
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- QR Code -->
+                    <div class="md:w-1/2 flex flex-col items-center">
+                        <div class="bg-white p-2 border border-gray-200 rounded-xl shadow-sm mb-3">
+                            <img id="qrImage" src="" alt="QR Code" class="w-full max-w-[250px] h-auto object-contain">
+                        </div>
+                        <button onclick="downloadQR()" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">
+                            <i class="fas fa-download mr-1"></i> Tải hình QR về máy
+                        </button>
+                    </div>
+
+                    <!-- Bank Info -->
+                    <div class="md:w-1/2 space-y-3 text-sm">
+                        <div>
+                            <p class="text-gray-500 text-xs uppercase">Ngân hàng</p>
+                            <div class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded border">
+                                <span id="txtBank" class="font-bold text-gray-800"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-xs uppercase">Chủ tài khoản</p>
+                            <div class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded border">
+                                <span id="txtAccountName" class="font-bold text-gray-800"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-xs uppercase">Số tài khoản</p>
+                            <div class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded border">
+                                <span id="txtAccountNumber" class="font-bold text-blue-700 text-lg"></span>
+                                <button onclick="copyText('txtAccountNumber')" class="text-gray-500 hover:text-blue-600"><i class="far fa-copy text-lg"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-xs uppercase">Số tiền</p>
+                            <div class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded border">
+                                <span id="txtAmount" class="font-bold text-green-600 text-lg"></span>
+                                <button onclick="copyText('txtAmount', true)" class="text-gray-500 hover:text-blue-600"><i class="far fa-copy text-lg"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-xs uppercase">Nội dung chuyển khoản</p>
+                            <div class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded border">
+                                <span id="txtContent" class="font-bold text-red-600"></span>
+                                <button onclick="copyText('txtContent')" class="text-gray-500 hover:text-blue-600"><i class="far fa-copy text-lg"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex flex-col gap-3">
+                    <button onclick="submitRegistration()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-md">
+                        <i class="fas fa-check-circle mr-2"></i> Tôi xác nhận đã chuyển khoản phí
+                    </button>
+                    <button onclick="cancelRegistration()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-4 rounded-lg transition duration-200">
+                        Tôi sẽ đăng ký sau
+                    </button>
+                    <button onclick="backToStep1()" class="w-full text-blue-600 font-semibold py-2">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại chỉnh sửa thông tin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // ============== CẤU HÌNH LIÊN KẾT GOOGLE APP SCRIPT ==============
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyHJCX1_EtI7L_m4yv9llb1UY8ClaRUAfAjteLnTAoWyhPd3IYedvOd1g9pF5uTM_gvlA/exec'; 
+    // =================================================================
+
+    let eventData = null;
+
+    // Khởi chạy khi load trang
+    window.onload = async () => {
+        try {
+            const response = await fetch(SCRIPT_URL);
+            const res = await response.json();
+            
+            if (res.status === "success") {
+                eventData = res.data;
+                checkTimeAndRender();
+            } else {
+                showClosedScreen();
+            }
+        } catch (error) {
+            Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.', 'error');
+        }
+        document.getElementById('loading').classList.add('hidden');
+    };
+
+    function checkTimeAndRender() {
+        const now = new Date();
+        const start = new Date(eventData.dangKyTu);
+        const end = new Date(eventData.dangKyDen);
+
+        if (now < start || now > end) {
+            showClosedScreen();
+            return;
+        }
+
+        // Render Data
+        document.getElementById('eventName').innerText = eventData.tenSuKien;
+        document.getElementById('eventDate').innerText = new Date(eventData.ngayToChuc).toLocaleDateString('vi-VN');
+        document.getElementById('eventLocation').innerText = eventData.diaDiemToChuc;
+        document.getElementById('regStart').innerText = start.toLocaleString('vi-VN');
+        document.getElementById('regEnd').innerText = end.toLocaleString('vi-VN');
+        
+        // Fee
+        document.getElementById('eventFee').innerText = formatCurrency(eventData.phiThamGia);
+        
+        // Includes/Excludes (chia cắt bằng dấu ;)
+        const includes = eventData.phiBaoGom.split(';').filter(i=>i.trim()!=='').map(i => `<li><i class="fas fa-check text-green-500 mr-2"></i>${i.trim()}</li>`).join('');
+        const excludes = eventData.phiKhongBaoGom.split(';').filter(i=>i.trim()!=='').map(i => `<li><i class="fas fa-times text-red-500 mr-2"></i>${i.trim()}</li>`).join('');
+        document.getElementById('feeIncludes').innerHTML = includes;
+        document.getElementById('feeExcludes').innerHTML = excludes;
+
+        document.getElementById('mainContent').classList.remove('hidden');
+    }
+
+    function showClosedScreen() {
+        document.getElementById('closedScreen').classList.remove('hidden');
+        document.getElementById('mainContent').classList.add('hidden');
+    }
+
+    function nextStep() {
+        const name = document.getElementById('inputName').value.trim();
+        const phone = document.getElementById('inputPhone').value.trim();
+        
+        if(!name) return Swal.fire('Thiếu thông tin', 'Vui lòng nhập Họ và Tên', 'warning');
+        
+        // Validate sdt VN cơ bản
+        const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
+        if(!phoneRegex.test(phone)) return Swal.fire('Lỗi', 'Số điện thoại không hợp lệ!', 'error');
+
+        // Prepare QR & Step 2
+        const transferContent = `${eventData.noiDungChuyenKhoan} ${phone}`;
+        const bankCode = eventData.nganHang; 
+        const accNo = eventData.soTaiKhoan;
+        const accName = eventData.chuTaiKhoan;
+        const amount = eventData.phiThamGia;
+
+        // API VietQR (compact2 là chuẩn UI đẹp)
+        const qrUrl = `https://img.vietqr.io/image/${bankCode}-${accNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(accName)}`;
+        document.getElementById('qrImage').src = qrUrl;
+
+        // Điền text
+        document.getElementById('txtBank').innerText = bankCode;
+        document.getElementById('txtAccountName').innerText = accName;
+        document.getElementById('txtAccountNumber').innerText = accNo;
+        document.getElementById('txtAmount').innerText = formatCurrency(amount);
+        document.getElementById('txtAmount').dataset.raw = amount; // Lưu raw value để copy
+        document.getElementById('txtContent').innerText = transferContent;
+
+        // Đổi giao diện
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+    }
+
+    function backToStep1() {
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step1').classList.remove('hidden');
+    }
+
+    async function submitRegistration() {
+        const name = document.getElementById('inputName').value.trim();
+        const phone = document.getElementById('inputPhone').value.trim();
+
+        document.getElementById('loading').classList.remove('hidden');
+
+        try {
+            // Dùng URLSearchParams để post tránh lỗi CORS Preflight
+            const formData = new URLSearchParams();
+            formData.append('hoTen', name);
+            formData.append('sdt', phone);
+
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+            const res = await response.json();
+
+            document.getElementById('loading').classList.add('hidden');
+
+            if(res.status === "success") {
+                Swal.fire({
+                    title: 'Đăng ký thành công!',
+                    text: 'Đăng ký đã được ghi nhận. Ban tổ chức sẽ kiểm tra lại và sẽ gửi xác nhận qua Zalo theo số điện thoại đã đăng ký trước ngày tổ chức sự kiện. Nếu cần hỗ trợ vui lòng liên hệ 0987.500.533.',
+                    icon: 'success',
+                    confirmButtonText: 'Đóng và Quay lại',
+                    confirmButtonColor: '#2563eb'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire('Lỗi', 'Không thể lưu đăng ký: ' + res.message, 'error');
+            }
+        } catch (error) {
+            document.getElementById('loading').classList.add('hidden');
+            Swal.fire('Lỗi', 'Không thể gửi đăng ký. Vui lòng thử lại sau.', 'error');
+        }
+    }
+
+    function cancelRegistration() {
+        Swal.fire({
+            title: 'Chưa hoàn tất',
+            text: 'Đăng ký sẽ không được ghi nhận, hãy thực hiện đăng ký lại khi bạn muốn tham gia nhé.',
+            icon: 'info',
+            confirmButtonText: 'Đã hiểu',
+            confirmButtonColor: '#6b7280'
+        }).then(() => {
+            window.location.reload();
+        });
+    }
+
+    function copyText(elementId, isAmount = false) {
+        const el = document.getElementById(elementId);
+        let textToCopy = isAmount ? el.dataset.raw : el.innerText;
+        
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const Toast = Swal.mixin({
+                toast: true, position: 'top-end', showConfirmButton: false, timer: 1500,
+                timerProgressBar: true
+            });
+            Toast.fire({ icon: 'success', title: 'Đã copy vào bộ nhớ đệm' });
+        });
+    }
+
+    async function downloadQR() {
+        const imgUrl = document.getElementById('qrImage').src;
+        try {
+            const response = await fetch(imgUrl);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'QR_ChuyenKhoan_PrideEvent.png';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (e) {
+            Swal.fire('Lỗi', 'Không thể tải ảnh. Vui lòng thử chụp màn hình lại nhé!', 'error');
+        }
+    }
+
+    function formatCurrency(number) {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+    }
+</script>
+</body>
+</html>
