@@ -4,211 +4,324 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng ký tham gia Sự kiện Pride</title>
+    
+    <!-- Font chữ hiện đại: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    animation: { blob: "blob 7s infinite" },
+                    keyframes: {
+                        blob: {
+                            "0%": { transform: "translate(0px, 0px) scale(1)" },
+                            "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+                            "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+                            "100%": { transform: "translate(0px, 0px) scale(1)" }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
-        .loader { border-top-color: #3498db; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f1f5f9; overflow-x: hidden; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #4f46e5 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .loader { border-top-color: #ec4899; animation: spinner 1s linear infinite; }
+        @keyframes spinner { to { transform: rotate(360deg); } }
+        .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body class="antialiased text-slate-800 min-h-screen relative flex flex-col justify-between">
+
+    <!-- Animated Background Blobs -->
+    <div class="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-40 animate-blob"></div>
+        <div class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-fuchsia-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-40 animate-blob" style="animation-delay: 2s"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-sky-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-40 animate-blob" style="animation-delay: 4s"></div>
+    </div>
 
     <!-- Loading Overlay -->
-    <div id="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-90">
-        <div class="flex flex-col items-center">
-            <div class="loader ease-linear rounded-full border-8 border-gray-200 h-16 w-16 mb-4"></div>
-            <h2 class="text-center text-xl font-semibold text-gray-700">Đang tải thông tin sự kiện...</h2>
+    <div id="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-md transition-opacity duration-300">
+        <div class="flex flex-col items-center bg-white p-8 rounded-3xl shadow-2xl border border-white/50">
+            <div class="loader rounded-full border-4 border-slate-100 h-14 w-14 mb-5"></div>
+            <h2 class="text-center text-lg font-bold text-slate-700 tracking-wide">Cổng đăng ký đang được tải...</h2>
+            <p class="text-sm text-slate-400 mt-1">Vui lòng chờ trong giây lát</p>
         </div>
     </div>
 
     <!-- Màn hình Sự kiện đóng -->
-    <div id="closedScreen" class="hidden min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full border-t-4 border-yellow-500">
-            <i class="fas fa-lock text-5xl text-yellow-500 mb-4"></i>
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Cổng đăng ký chưa mở</h2>
-            <p class="text-gray-600 mb-6">Thời gian đăng ký sự kiện chưa bắt đầu hoặc đã kết thúc. Vui lòng liên hệ hỗ trợ nếu cần thiết.</p>
-            <a href="tel:0987500533" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
-                <i class="fas fa-phone-alt mr-2"></i> Liên hệ 0987.500.533
+    <div id="closedScreen" class="hidden relative z-10 flex-grow flex items-center justify-center p-4">
+        <div class="glass-panel p-10 rounded-[2rem] shadow-2xl text-center max-w-md w-full relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-rose-500 to-orange-500"></div>
+            <div class="bg-rose-100/50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <i class="fas fa-lock text-4xl text-rose-500 drop-shadow-md"></i>
+            </div>
+            <h2 id="closedTitle" class="text-2xl font-extrabold text-slate-800 mb-3">Cổng đăng ký đã đóng</h2>
+            <p id="closedMessage" class="text-slate-500 mb-8 leading-relaxed font-medium">Thời gian đăng ký sự kiện chưa bắt đầu hoặc đã kết thúc. Vui lòng liên hệ ban tổ chức để được hỗ trợ.</p>
+            <a href="tel:0987500533" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-slate-500/30 transition-all duration-300 w-full transform hover:-translate-y-1">
+                <i class="fas fa-headset mr-2"></i> Hotline: 0987.500.533
             </a>
         </div>
     </div>
 
-    <!-- Nội dung chính -->
-    <div id="mainContent" class="hidden max-w-3xl mx-auto pb-12 pt-6 px-4 sm:px-6">
+    <!-- NỘI DUNG CHÍNH -->
+    <div id="mainContent" class="hidden relative z-10 flex-grow max-w-4xl mx-auto w-full pt-6 pb-12 px-4 sm:px-6">
         
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 id="eventName" class="text-3xl sm:text-4xl font-extrabold text-blue-800 mb-2 uppercase tracking-wide"></h1>
-            <p class="text-gray-500 italic">Pride Event Registration Form</p>
-        </div>
-
-        <!-- Info Boxes -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500">
-                <div class="flex items-center mb-3">
-                    <i class="fas fa-calendar-alt text-blue-500 text-xl w-8"></i>
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase font-semibold">Thời gian tổ chức</p>
-                        <p id="eventDate" class="font-bold text-gray-800"></p>
-                    </div>
-                </div>
-                <div class="flex items-center">
-                    <i class="fas fa-map-marker-alt text-red-500 text-xl w-8"></i>
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase font-semibold">Địa điểm</p>
-                        <p id="eventLocation" class="font-bold text-gray-800"></p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow p-5 border-l-4 border-green-500">
-                <div class="flex items-center h-full">
-                    <i class="fas fa-clock text-green-500 text-3xl w-12"></i>
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase font-semibold">Thời hạn đăng ký</p>
-                        <p class="font-bold text-gray-800">Từ: <span id="regStart" class="text-blue-600"></span></p>
-                        <p class="font-bold text-gray-800">Đến: <span id="regEnd" class="text-red-600"></span></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lưu ý của BTC -->
-        <div class="bg-blue-50 rounded-xl shadow p-5 mb-6 border border-blue-100">
-            <h3 class="font-bold text-blue-800 border-b border-blue-200 pb-2 mb-3"><i class="fas fa-exclamation-circle mr-2"></i>Lưu ý từ Ban Tổ Chức</h3>
-            <ul class="text-sm text-blue-900 space-y-2 list-disc list-inside">
-                <li>Ban tổ chức chỉ duyệt đăng ký khi bạn là thành viên của Cộng đồng Pride Home. Nếu chưa là thành viên vui lòng liên hệ 0987.500.533 (Zalo).</li>
-                <li>Đồng ý cho Pride Home sử dụng hình ảnh cho mục đích truyền thông.</li>
-                <li>Tuân thủ các quy định của Ban tổ chức trong quá trình tổ chức sự kiện.</li>
-            </ul>
-        </div>
-
-        <!-- Form đăng ký -->
-        <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8">
+        <!-- Khung Panel Chính -->
+        <div class="glass-panel rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden animate-fade-in-up">
             
-            <!-- BƯỚC 1 -->
-            <div id="step1">
-                <div class="flex items-center mb-6">
-                    <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">1</div>
-                    <h2 class="text-xl font-bold text-gray-800">Thông tin cá nhân & Phí tham gia</h2>
-                </div>
-
-                <div class="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
-                    <p class="text-center text-sm text-gray-500 mb-1">Phí tham gia</p>
-                    <p id="eventFee" class="text-center text-3xl font-bold text-green-600 mb-4"></p>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p class="font-semibold text-gray-700 border-b pb-1 mb-2">Bao gồm:</p>
-                            <ul id="feeIncludes" class="space-y-1 text-gray-600"></ul>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-gray-700 border-b pb-1 mb-2">Không bao gồm:</p>
-                            <ul id="feeExcludes" class="space-y-1 text-gray-600"></ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-gray-700 font-semibold mb-2">Họ và Tên *</label>
-                        <input type="text" id="inputName" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập họ tên của bạn">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-semibold mb-2">Số điện thoại (Zalo) *</label>
-                        <input type="tel" id="inputPhone" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0987...">
-                    </div>
-                    <button onclick="nextStep()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 mt-4 shadow-md">
-                        Tiếp tục thanh toán <i class="fas fa-arrow-right ml-2"></i>
-                    </button>
-                </div>
+            <!-- Hero Header -->
+            <div class="relative bg-white/40 px-6 py-12 sm:px-14 sm:py-16 border-b border-white/60 text-center">
+                <span class="inline-block py-1.5 px-4 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold tracking-widest uppercase mb-5 shadow-sm border border-indigo-200">
+                    Cổng đăng ký sự kiện
+                </span>
+                <h1 id="eventName" class="text-3xl sm:text-5xl font-black text-slate-800 mb-4 tracking-tight leading-tight"></h1>
+                <div class="w-24 h-1.5 bg-gradient-to-r from-indigo-500 to-pink-500 mx-auto rounded-full mt-6"></div>
             </div>
 
-            <!-- BƯỚC 2 -->
-            <div id="step2" class="hidden">
-                <div class="flex items-center mb-6">
-                    <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">2</div>
-                    <h2 class="text-xl font-bold text-gray-800">Thanh toán chuyển khoản</h2>
+            <!-- Body -->
+            <div class="px-6 sm:px-14 py-10">
+                
+                <!-- Info Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+                    <div class="bg-white/60 rounded-2xl p-5 border border-white shadow-sm flex items-start gap-4 hover:bg-white/80 transition duration-300">
+                        <div class="bg-gradient-to-br from-indigo-500 to-purple-500 w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-md text-white">
+                            <i class="fas fa-map-marker-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-indigo-500 uppercase font-black tracking-wider mb-1">Thời gian & Địa điểm</p>
+                            <p id="eventDate" class="font-bold text-slate-800 text-base"></p>
+                            <p id="eventLocation" class="text-sm text-slate-500 mt-1 font-medium"></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/60 rounded-2xl p-5 border border-white shadow-sm flex items-start gap-4 hover:bg-white/80 transition duration-300">
+                        <div class="bg-gradient-to-br from-pink-500 to-rose-500 w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-md text-white">
+                            <i class="fas fa-stopwatch text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-pink-500 uppercase font-black tracking-wider mb-1">Thời hạn đăng ký</p>
+                            <p class="text-sm text-slate-600 font-medium"><span class="text-slate-400">Từ:</span> <span id="regStart" class="text-slate-800 font-bold"></span></p>
+                            <p class="text-sm text-slate-600 font-medium mt-1"><span class="text-slate-400">Đến:</span> <span id="regEnd" class="text-slate-800 font-bold"></span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lưu ý BTC -->
+                <div class="bg-indigo-50/70 rounded-2xl p-6 mb-10 border border-indigo-100/50 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                    <h3 class="font-bold text-indigo-900 flex items-center gap-2 mb-3 text-lg">
+                        <i class="fas fa-info-circle text-indigo-600"></i> Lưu ý từ Ban Tổ Chức
+                    </h3>
+                    <ul class="text-sm text-indigo-900/80 space-y-2.5 list-disc list-inside leading-relaxed font-medium">
+                        <li>Ban tổ chức chỉ duyệt đăng ký khi bạn là thành viên của Cộng đồng Pride Home. Nếu chưa là thành viên vui lòng liên hệ <strong class="text-indigo-700">0987.500.533</strong> (Zalo).</li>
+                        <li>Đồng ý cho Pride Home sử dụng hình ảnh cho mục đích truyền thông.</li>
+                        <li>Tuân thủ các quy định của Ban tổ chức trong quá trình diễn ra sự kiện.</li>
+                    </ul>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="flex items-center justify-between relative mb-8">
+                    <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-slate-200 rounded-full z-0"></div>
+                    <div id="progressBar" class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1/2 h-1 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full z-0 transition-all duration-500"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div id="step1Indicator" class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-white font-bold flex items-center justify-center shadow-lg ring-4 ring-white">1</div>
+                        <span class="text-xs font-bold text-indigo-600 mt-2">Thông tin</span>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div id="step2Indicator" class="w-10 h-10 rounded-full bg-slate-200 text-slate-400 font-bold flex items-center justify-center ring-4 ring-white transition-all duration-500">2</div>
+                        <span id="step2Label" class="text-xs font-bold text-slate-400 mt-2 transition-all duration-500">Thanh toán</span>
+                    </div>
                 </div>
                 
-                <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6 text-sm text-yellow-800">
-                    <i class="fas fa-info-circle mr-1"></i> Quét mã QR bằng App Ngân hàng hoặc chuyển khoản thủ công theo thông tin bên dưới.
+                <!-- BƯỚC 1: NHẬP THÔNG TIN -->
+                <div id="step1" class="animate-fade-in-up">
+                    
+                    <!-- Lệ phí (Ticket Style) -->
+                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100/50 p-6 sm:p-8 mb-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-400 rounded-full mix-blend-multiply filter blur-[40px] opacity-20"></div>
+                        <p class="text-sm text-emerald-600 font-bold mb-1 uppercase tracking-wider">Lệ phí tham gia</p>
+                        <p id="eventFee" class="text-4xl sm:text-5xl font-black text-emerald-600 mb-6 tracking-tight"></p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-medium">
+                            <div class="bg-white/80 p-4 rounded-xl border border-emerald-50">
+                                <p class="font-bold text-slate-800 mb-2 flex items-center gap-2"><i class="fas fa-check text-emerald-500"></i> Phí bao gồm:</p>
+                                <ul id="feeIncludes" class="space-y-1.5 text-slate-600"></ul>
+                            </div>
+                            <div class="bg-white/80 p-4 rounded-xl border border-rose-50">
+                                <p class="font-bold text-slate-800 mb-2 flex items-center gap-2"><i class="fas fa-times text-rose-400"></i> Không bao gồm:</p>
+                                <ul id="feeExcludes" class="space-y-1.5 text-slate-600"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Inputs -->
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-slate-700 font-bold mb-2 text-sm uppercase tracking-wide">Họ và Tên <span class="text-rose-500">*</span></label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-600">
+                                    <i class="far fa-user text-slate-400 group-focus-within:text-indigo-500"></i>
+                                </div>
+                                <input type="text" id="inputName" class="w-full pl-11 pr-4 py-4 rounded-xl border-2 border-slate-200 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-slate-800 font-bold outline-none" placeholder="Vui lòng nhập tên của bạn">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-slate-700 font-bold mb-2 text-sm uppercase tracking-wide">Số điện thoại (Zalo) <span class="text-rose-500">*</span></label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-600">
+                                    <i class="fas fa-phone-alt text-slate-400 group-focus-within:text-indigo-500"></i>
+                                </div>
+                                <input type="tel" id="inputPhone" class="w-full pl-11 pr-4 py-4 rounded-xl border-2 border-slate-200 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-slate-800 font-bold outline-none" placeholder="0987...">
+                            </div>
+                        </div>
+                        <div class="pt-4">
+                            <button onclick="nextStep()" class="w-full bg-gradient-to-r from-indigo-600 to-pink-500 hover:from-indigo-700 hover:to-pink-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-[0_10px_20px_rgba(79,_70,_229,_0.3)] flex justify-center items-center gap-2 transform hover:-translate-y-1 text-lg">
+                                Tiếp tục thanh toán <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="flex flex-col md:flex-row gap-6">
-                    <!-- QR Code -->
-                    <div class="md:w-1/2 flex flex-col items-center">
-                        <div class="bg-white p-2 border border-gray-200 rounded-xl shadow-sm mb-3">
-                            <img id="qrImage" src="" alt="QR Code" class="w-full max-w-[250px] h-auto object-contain">
+                <!-- BƯỚC 2: THANH TOÁN (BILL RECEIPT) -->
+                <div id="step2" class="hidden animate-fade-in-up">
+                    
+                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-8 flex gap-3 text-amber-800 text-sm font-medium shadow-sm">
+                        <i class="fas fa-shield-check text-amber-500 mt-0.5 text-lg"></i>
+                        <p>Vui lòng quét mã QR hoặc chuyển khoản đúng nội dung bên dưới.</p>
+                    </div>
+
+                    <!-- Layout Hóa đơn -->
+                    <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden relative">
+                        <div class="flex flex-col md:flex-row relative z-0">
+                            <!-- Trái: QR Code (Được mở rộng) -->
+                            <div class="md:w-5/12 bg-slate-50 p-6 sm:p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-dashed border-slate-200">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Mã quét tự động</p>
+                                <!-- Tăng kích thước khung ảnh mã QR lên max-w-[300px] -->
+                                <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 w-full max-w-[300px] mb-5">
+                                    <img id="qrImage" src="" alt="QR Code" class="w-full h-auto object-contain rounded-xl">
+                                </div>
+                                <button onclick="downloadQR()" class="text-indigo-600 hover:text-indigo-800 text-sm font-bold flex items-center gap-2 bg-indigo-50/50 hover:bg-indigo-100 px-5 py-2.5 rounded-full transition-colors">
+                                    <i class="fas fa-download"></i> Tải ảnh QR
+                                </button>
+                            </div>
+
+                            <!-- Phải: Thông tin CK -->
+                            <div class="md:w-7/12 p-6 sm:p-8">
+                                <h4 class="font-black text-slate-800 text-lg mb-6">Thông tin người nhận</h4>
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                                        <span class="text-sm text-slate-500 font-medium">Ngân hàng</span>
+                                        <span id="txtBank" class="font-bold text-slate-800 text-right"></span>
+                                    </div>
+                                    <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                                        <span class="text-sm text-slate-500 font-medium">Chủ tài khoản</span>
+                                        <span id="txtAccountName" class="font-bold text-slate-800 text-right"></span>
+                                    </div>
+                                    <div class="flex justify-between items-center pb-3 border-b border-slate-100 group">
+                                        <span class="text-sm text-slate-500 font-medium">Số tài khoản</span>
+                                        <div class="flex items-center gap-3">
+                                            <span id="txtAccountNumber" class="font-black text-indigo-600 text-lg tracking-wide"></span>
+                                            <button onclick="copyText('txtAccountNumber')" class="text-slate-300 hover:text-indigo-600 focus:text-emerald-500 transition-colors"><i class="far fa-copy text-lg"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center pb-3 border-b border-slate-100 group">
+                                        <span class="text-sm text-slate-500 font-medium">Số tiền</span>
+                                        <div class="flex items-center gap-3">
+                                            <span id="txtAmount" class="font-black text-emerald-500 text-lg"></span>
+                                            <button onclick="copyText('txtAmount', true)" class="text-slate-300 hover:text-indigo-600 focus:text-emerald-500 transition-colors"><i class="far fa-copy text-lg"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-rose-50/50 p-3 rounded-xl border border-rose-100 gap-2">
+                                        <span class="text-sm text-slate-500 font-bold whitespace-nowrap">Nội dung CK</span>
+                                        <div class="flex items-center justify-end gap-3 w-full">
+                                            <span id="txtContent" class="font-black text-rose-500 text-right break-all"></span>
+                                            <button onclick="copyText('txtContent')" class="text-rose-300 hover:text-rose-600 transition-colors shrink-0"><i class="far fa-copy text-lg"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <button onclick="downloadQR()" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">
-                            <i class="fas fa-download mr-1"></i> Tải hình QR về máy
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button onclick="cancelRegistration()" class="order-2 sm:order-1 w-full bg-white border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-600 font-bold py-4 px-6 rounded-xl transition duration-200 text-lg">
+                            Tôi sẽ đăng ký sau
+                        </button>
+                        <button onclick="submitRegistration()" class="order-1 sm:order-2 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-[0_10px_20px_rgba(16,_185,_129,_0.3)] flex justify-center items-center gap-2 transform hover:-translate-y-1 text-lg">
+                            <i class="fas fa-check-circle"></i> Đã chuyển khoản
                         </button>
                     </div>
-
-                    <!-- Bank Info -->
-                    <div class="md:w-1/2 space-y-3 text-sm">
-                        <div>
-                            <p class="text-gray-500 text-xs uppercase">Ngân hàng</p>
-                            <div class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded border">
-                                <span id="txtBank" class="font-bold text-gray-800"></span>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 text-xs uppercase">Chủ tài khoản</p>
-                            <div class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded border">
-                                <span id="txtAccountName" class="font-bold text-gray-800"></span>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 text-xs uppercase">Số tài khoản</p>
-                            <div class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded border">
-                                <span id="txtAccountNumber" class="font-bold text-blue-700 text-lg"></span>
-                                <button onclick="copyText('txtAccountNumber')" class="text-gray-500 hover:text-blue-600"><i class="far fa-copy text-lg"></i></button>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 text-xs uppercase">Số tiền</p>
-                            <div class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded border">
-                                <span id="txtAmount" class="font-bold text-green-600 text-lg"></span>
-                                <button onclick="copyText('txtAmount', true)" class="text-gray-500 hover:text-blue-600"><i class="far fa-copy text-lg"></i></button>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 text-xs uppercase">Nội dung chuyển khoản</p>
-                            <div class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded border">
-                                <span id="txtContent" class="font-bold text-red-600"></span>
-                                <button onclick="copyText('txtContent')" class="text-gray-500 hover:text-blue-600"><i class="far fa-copy text-lg"></i></button>
-                            </div>
-                        </div>
+                    <div class="text-center mt-6">
+                        <button onclick="backToStep1()" class="text-slate-400 hover:text-indigo-600 font-bold text-sm inline-flex items-center gap-2 transition-colors">
+                            <i class="fas fa-arrow-left"></i> Quay lại sửa thông tin cá nhân
+                        </button>
                     </div>
                 </div>
 
-                <div class="mt-8 flex flex-col gap-3">
-                    <button onclick="submitRegistration()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-md">
-                        <i class="fas fa-check-circle mr-2"></i> Tôi xác nhận đã chuyển khoản phí
-                    </button>
-                    <button onclick="cancelRegistration()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-4 rounded-lg transition duration-200">
-                        Tôi sẽ đăng ký sau
-                    </button>
-                    <button onclick="backToStep1()" class="w-full text-blue-600 font-semibold py-2">
-                        <i class="fas fa-arrow-left mr-1"></i> Quay lại chỉnh sửa thông tin
-                    </button>
-                </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center relative z-10 animate-fade-in-up" style="animation-delay: 0.3s;">
+            <p class="text-sm text-slate-500 font-medium">
+                Pride Event là một trong các hoạt động được tổ chức bởi <span class="font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-pink-500">Pride Home</span>.
+            </p>
+        </footer>
     </div>
 
 <script>
-    // ============== CẤU HÌNH LIÊN KẾT GOOGLE APP SCRIPT ==============
+    // ============== ĐIỀN URL CỦA BẠN VÀO ĐÂY ==============
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyHJCX1_EtI7L_m4yv9llb1UY8ClaRUAfAjteLnTAoWyhPd3IYedvOd1g9pF5uTM_gvlA/exec'; 
-    // =================================================================
+    // ======================================================
 
     let eventData = null;
 
-    // Khởi chạy khi load trang
+    // Parser ngày tháng siêu chuẩn
+    function parseDateCustom(dateInput) {
+        if (!dateInput) return new Date();
+        if (typeof dateInput === 'string') {
+            const regex = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/;
+            const match = dateInput.match(regex);
+            if (match) {
+                const day = parseInt(match[1], 10);
+                const month = parseInt(match[2], 10) - 1; 
+                const year = parseInt(match[3], 10);
+                const hours = match[4] ? parseInt(match[4], 10) : 0;
+                const minutes = match[5] ? parseInt(match[5], 10) : 0;
+                const seconds = match[6] ? parseInt(match[6], 10) : 0;
+                return new Date(year, month, day, hours, minutes, seconds);
+            }
+            const d = new Date(dateInput);
+            if (!isNaN(d.getTime())) return d;
+        }
+        return new Date(dateInput);
+    }
+
+    // Khởi động
     window.onload = async () => {
         try {
             const response = await fetch(SCRIPT_URL);
@@ -218,101 +331,51 @@
                 eventData = res.data;
                 checkTimeAndRender();
             } else {
-                showClosedScreen();
+                showClosedScreen("Không tìm thấy sự kiện", "Không có sự kiện nào đang ở trạng thái 'Mở đăng ký' hoặc dữ liệu bị lỗi.");
             }
         } catch (error) {
-            Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.', 'error');
+            Swal.fire('Lỗi kết nối', 'Không thể tải dữ liệu từ máy chủ. Vui lòng thử lại sau.', 'error');
+            showClosedScreen("Lỗi kết nối", "Không thể tải dữ liệu từ máy chủ.");
         }
-        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('loading').classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => document.getElementById('loading').classList.add('hidden'), 300);
     };
 
-    // Hàm chuyển đổi ngày tháng chuẩn xác cho cả 2 định dạng
-function parseDateCustom(dateInput) {
-    // Thử parse theo chuẩn mặc định (ISO từ Google Sheets Date format)
-    let d = new Date(dateInput);
-    if (!isNaN(d.getTime())) return d;
-
-    // Nếu parse lỗi, xử lý theo định dạng nhập tay Text: DD/MM/YYYY HH:mm:ss
-    if (typeof dateInput === 'string') {
-        const parts = dateInput.split(' ');
-        const dateParts = parts[0].split('/'); // Cắt theo dấu /
-        if (dateParts.length === 3) {
-            const day = parseInt(dateParts[0], 10);
-            const month = parseInt(dateParts[1], 10) - 1; // JavaScript tính tháng từ 0 (0-11)
-            const year = parseInt(dateParts[2], 10);
-            
-            let hours = 0, minutes = 0, seconds = 0;
-            if (parts[1]) {
-                const timeParts = parts[1].split(':');
-                hours = parseInt(timeParts[0] || 0, 10);
-                minutes = parseInt(timeParts[1] || 0, 10);
-                seconds = parseInt(timeParts[2] || 0, 10);
-            }
-            return new Date(year, month, day, hours, minutes, seconds);
-        }
-    }
-    return new Date(); // Fallback nếu dữ liệu rỗng
-}
-
-function checkTimeAndRender() {
-    const now = new Date();
-    
-    // Sử dụng hàm parseDateCustom mới
-    const start = parseDateCustom(eventData.dangKyTu);
-    const end = parseDateCustom(eventData.dangKyDen);
-
-    // Kiểm tra thời gian
-    if (now < start || now > end) {
-        showClosedScreen();
-        return;
-    }
-
-    // Render Data (Phần này giữ nguyên như cũ)
-    document.getElementById('eventName').innerText = eventData.tenSuKien;
-    document.getElementById('eventDate').innerText = parseDateCustom(eventData.ngayToChuc).toLocaleDateString('vi-VN');
-    document.getElementById('eventLocation').innerText = eventData.diaDiemToChuc;
-    document.getElementById('regStart').innerText = start.toLocaleString('vi-VN');
-    document.getElementById('regEnd').innerText = end.toLocaleString('vi-VN');
-    
-    // Fee
-    document.getElementById('eventFee').innerText = formatCurrency(eventData.phiThamGia);
-    
-    const includes = eventData.phiBaoGom.split(';').filter(i=>i.trim()!=='').map(i => `<li><i class="fas fa-check text-green-500 mr-2"></i>${i.trim()}</li>`).join('');
-    const excludes = eventData.phiKhongBaoGom.split(';').filter(i=>i.trim()!=='').map(i => `<li><i class="fas fa-times text-red-500 mr-2"></i>${i.trim()}</li>`).join('');
-    document.getElementById('feeIncludes').innerHTML = includes;
-    document.getElementById('feeExcludes').innerHTML = excludes;
-
-    document.getElementById('mainContent').classList.remove('hidden');
-}
+    function checkTimeAndRender() {
         const now = new Date();
-        const start = new Date(eventData.dangKyTu);
-        const end = new Date(eventData.dangKyDen);
+        const start = parseDateCustom(eventData.dangKyTu);
+        const end = parseDateCustom(eventData.dangKyDen);
 
-        if (now < start || now > end) {
-            showClosedScreen();
+        if (now < start) {
+            showClosedScreen("Cổng đăng ký chưa mở", "Thời gian đăng ký sự kiện chưa bắt đầu. Vui lòng quay lại sau.");
+            return;
+        }
+        if (now > end) {
+            showClosedScreen("Cổng đăng ký đã đóng", "Rất tiếc, thời hạn đăng ký sự kiện đã kết thúc.");
             return;
         }
 
-        // Render Data
-        document.getElementById('eventName').innerText = eventData.tenSuKien;
-        document.getElementById('eventDate').innerText = new Date(eventData.ngayToChuc).toLocaleDateString('vi-VN');
-        document.getElementById('eventLocation').innerText = eventData.diaDiemToChuc;
-        document.getElementById('regStart').innerText = start.toLocaleString('vi-VN');
-        document.getElementById('regEnd').innerText = end.toLocaleString('vi-VN');
-        
-        // Fee
+        // Render Text
+        document.getElementById('eventName').innerText = eventData.tenSuKien || '';
+        document.getElementById('eventDate').innerText = parseDateCustom(eventData.ngayToChuc).toLocaleDateString('vi-VN');
+        document.getElementById('eventLocation').innerText = eventData.diaDiemToChuc || '';
+        document.getElementById('regStart').innerText = start.toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric'});
+        document.getElementById('regEnd').innerText = end.toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric'});
         document.getElementById('eventFee').innerText = formatCurrency(eventData.phiThamGia);
         
-        // Includes/Excludes (chia cắt bằng dấu ;)
-        const includes = eventData.phiBaoGom.split(';').filter(i=>i.trim()!=='').map(i => `<li><i class="fas fa-check text-green-500 mr-2"></i>${i.trim()}</li>`).join('');
-        const excludes = eventData.phiKhongBaoGom.split(';').filter(i=>i.trim()!=='').map(i => `<li><i class="fas fa-times text-red-500 mr-2"></i>${i.trim()}</li>`).join('');
-        document.getElementById('feeIncludes').innerHTML = includes;
-        document.getElementById('feeExcludes').innerHTML = excludes;
+        // Includes/Excludes
+        const baoGom = eventData.phiBaoGom ? String(eventData.phiBaoGom) : "";
+        const khongBaoGom = eventData.phiKhongBaoGom ? String(eventData.phiKhongBaoGom) : "";
+        
+        document.getElementById('feeIncludes').innerHTML = baoGom.split(';').filter(i=>i.trim()!=='').map(i => `<li><span class="mr-2 text-emerald-400 font-black">✓</span>${i.trim()}</li>`).join('') || '<li>-</li>';
+        document.getElementById('feeExcludes').innerHTML = khongBaoGom.split(';').filter(i=>i.trim()!=='').map(i => `<li><span class="mr-2 text-rose-300 font-black">×</span>${i.trim()}</li>`).join('') || '<li>-</li>';
 
         document.getElementById('mainContent').classList.remove('hidden');
     }
 
-    function showClosedScreen() {
+    function showClosedScreen(title, message) {
+        document.getElementById('closedTitle').innerText = title;
+        document.getElementById('closedMessage').innerText = message;
         document.getElementById('closedScreen').classList.remove('hidden');
         document.getElementById('mainContent').classList.add('hidden');
     }
@@ -321,91 +384,100 @@ function checkTimeAndRender() {
         const name = document.getElementById('inputName').value.trim();
         const phone = document.getElementById('inputPhone').value.trim();
         
-        if(!name) return Swal.fire('Thiếu thông tin', 'Vui lòng nhập Họ và Tên', 'warning');
+        if(!name) return Swal.fire({title: 'Thiếu thông tin', text: 'Vui lòng nhập Họ và Tên của bạn', icon: 'warning', confirmButtonColor: '#4f46e5', confirmButtonText: 'Đã hiểu'});
         
-        // Validate sdt VN cơ bản
         const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
-        if(!phoneRegex.test(phone)) return Swal.fire('Lỗi', 'Số điện thoại không hợp lệ!', 'error');
+        if(!phoneRegex.test(phone)) return Swal.fire({title: 'Sai định dạng', text: 'Số điện thoại Zalo không hợp lệ! Vui lòng kiểm tra lại.', icon: 'error', confirmButtonColor: '#4f46e5'});
 
-        // Prepare QR & Step 2
-        const transferContent = `${eventData.noiDungChuyenKhoan} ${phone}`;
+        const transferContent = `${eventData.noiDungChuyenKhoan || ''} ${phone}`;
         const bankCode = eventData.nganHang; 
         const accNo = eventData.soTaiKhoan;
         const accName = eventData.chuTaiKhoan;
         const amount = eventData.phiThamGia;
 
-        // API VietQR (compact2 là chuẩn UI đẹp)
         const qrUrl = `https://img.vietqr.io/image/${bankCode}-${accNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(accName)}`;
         document.getElementById('qrImage').src = qrUrl;
 
-        // Điền text
         document.getElementById('txtBank').innerText = bankCode;
         document.getElementById('txtAccountName').innerText = accName;
         document.getElementById('txtAccountNumber').innerText = accNo;
         document.getElementById('txtAmount').innerText = formatCurrency(amount);
-        document.getElementById('txtAmount').dataset.raw = amount; // Lưu raw value để copy
+        document.getElementById('txtAmount').dataset.raw = amount;
         document.getElementById('txtContent').innerText = transferContent;
 
-        // Đổi giao diện
+        // UI Transition
         document.getElementById('step1').classList.add('hidden');
         document.getElementById('step2').classList.remove('hidden');
+        
+        // Cập nhật Progress Bar
+        document.getElementById('progressBar').style.width = '100%';
+        const s2Ind = document.getElementById('step2Indicator');
+        s2Ind.classList.remove('bg-slate-200', 'text-slate-400');
+        s2Ind.classList.add('bg-gradient-to-br', 'from-indigo-500', 'to-pink-500', 'text-white', 'shadow-lg');
+        document.getElementById('step2Label').classList.remove('text-slate-400');
+        document.getElementById('step2Label').classList.add('text-indigo-600');
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function backToStep1() {
         document.getElementById('step2').classList.add('hidden');
         document.getElementById('step1').classList.remove('hidden');
+
+        // Lùi Progress Bar
+        document.getElementById('progressBar').style.width = '50%';
+        const s2Ind = document.getElementById('step2Indicator');
+        s2Ind.classList.add('bg-slate-200', 'text-slate-400');
+        s2Ind.classList.remove('bg-gradient-to-br', 'from-indigo-500', 'to-pink-500', 'text-white', 'shadow-lg');
+        document.getElementById('step2Label').classList.add('text-slate-400');
+        document.getElementById('step2Label').classList.remove('text-indigo-600');
     }
 
     async function submitRegistration() {
         const name = document.getElementById('inputName').value.trim();
         const phone = document.getElementById('inputPhone').value.trim();
 
-        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('loading').querySelector('h2').innerText = "Đang xử lý đăng ký...";
+        document.getElementById('loading').classList.remove('hidden', 'opacity-0', 'pointer-events-none');
 
         try {
-            // Dùng URLSearchParams để post tránh lỗi CORS Preflight
             const formData = new URLSearchParams();
             formData.append('hoTen', name);
             formData.append('sdt', phone);
 
             const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: formData,
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
             const res = await response.json();
 
-            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('loading').classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => document.getElementById('loading').classList.add('hidden'), 300);
 
             if(res.status === "success") {
                 Swal.fire({
-                    title: 'Đăng ký thành công!',
-                    text: 'Đăng ký đã được ghi nhận. Ban tổ chức sẽ kiểm tra lại và sẽ gửi xác nhận qua Zalo theo số điện thoại đã đăng ký trước ngày tổ chức sự kiện. Nếu cần hỗ trợ vui lòng liên hệ 0987.500.533.',
+                    title: '🎉 Đăng ký thành công!',
+                    text: 'Đăng ký đã được ghi nhận. Ban tổ chức sẽ kiểm tra lại và gửi xác nhận qua Zalo trước ngày tổ chức.',
                     icon: 'success',
-                    confirmButtonText: 'Đóng và Quay lại',
-                    confirmButtonColor: '#2563eb'
-                }).then(() => {
-                    window.location.reload();
-                });
+                    confirmButtonText: 'Tuyệt vời',
+                    confirmButtonColor: '#4f46e5'
+                }).then(() => { window.location.reload(); });
             } else {
                 Swal.fire('Lỗi', 'Không thể lưu đăng ký: ' + res.message, 'error');
             }
         } catch (error) {
-            document.getElementById('loading').classList.add('hidden');
-            Swal.fire('Lỗi', 'Không thể gửi đăng ký. Vui lòng thử lại sau.', 'error');
+            document.getElementById('loading').classList.add('opacity-0', 'pointer-events-none');
+            Swal.fire('Lỗi kết nối', 'Không thể gửi đăng ký. Vui lòng kiểm tra mạng và thử lại.', 'error');
         }
     }
 
     function cancelRegistration() {
         Swal.fire({
             title: 'Chưa hoàn tất',
-            text: 'Đăng ký sẽ không được ghi nhận, hãy thực hiện đăng ký lại khi bạn muốn tham gia nhé.',
+            text: 'Đăng ký sẽ không được ghi nhận, hãy thực hiện lại khi bạn muốn tham gia nhé.',
             icon: 'info',
             confirmButtonText: 'Đã hiểu',
-            confirmButtonColor: '#6b7280'
-        }).then(() => {
-            window.location.reload();
-        });
+            confirmButtonColor: '#64748b'
+        }).then(() => { window.location.reload(); });
     }
 
     function copyText(elementId, isAmount = false) {
@@ -413,35 +485,51 @@ function checkTimeAndRender() {
         let textToCopy = isAmount ? el.dataset.raw : el.innerText;
         
         navigator.clipboard.writeText(textToCopy).then(() => {
-            const Toast = Swal.mixin({
-                toast: true, position: 'top-end', showConfirmButton: false, timer: 1500,
-                timerProgressBar: true
-            });
-            Toast.fire({ icon: 'success', title: 'Đã copy vào bộ nhớ đệm' });
+            const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
+            Toast.fire({ icon: 'success', title: 'Đã copy thành công' });
         });
     }
 
+    // Tải ảnh tích hợp CORS proxy
     async function downloadQR() {
         const imgUrl = document.getElementById('qrImage').src;
         try {
-            const response = await fetch(imgUrl);
+            Swal.fire({ title: 'Đang chuẩn bị ảnh...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+            
+            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(imgUrl);
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error('Proxy error');
+            
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
+            
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = 'QR_ChuyenKhoan_PrideEvent.png';
+            a.download = 'QR_ThanhToan_PrideEvent.png';
+            
             document.body.appendChild(a);
             a.click();
+            
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
+            Swal.close();
         } catch (e) {
-            Swal.fire('Lỗi', 'Không thể tải ảnh. Vui lòng thử chụp màn hình lại nhé!', 'error');
+            Swal.close();
+            window.open(imgUrl, '_blank');
+            Swal.fire({
+                title: 'Hướng dẫn lưu ảnh',
+                text: 'Hệ thống đã mở mã QR sang tab mới. Bạn hãy nhấn giữ ảnh (trên điện thoại) hoặc click chuột phải (trên máy tính) và chọn "Lưu hình ảnh" nhé!',
+                icon: 'info',
+                confirmButtonColor: '#4f46e5'
+            });
         }
     }
 
     function formatCurrency(number) {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+        const num = parseFloat(number);
+        if(isNaN(num)) return number; 
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
     }
 </script>
 </body>
